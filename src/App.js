@@ -1,5 +1,6 @@
 import React from 'react';
 import GlobalStyles from './globalStyles';
+import Home from './screens/home';
 import Navbar from './components/navbar';
 
 function App() {
@@ -7,6 +8,7 @@ function App() {
     <>
       <GlobalStyles />
       <Navbar />
+      <Home greeting="Bienvenidos a Maturi's Books " />
     </>
   );
 }
