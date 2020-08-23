@@ -1,8 +1,13 @@
 import React from 'react';
+import GlobalStyles from './globalStyles';
+import Navbar from './components/navbar';
 
 function App() {
   return (
-    <h1>maturin</h1>
+    <>
+      <GlobalStyles />
+      <Navbar />
+    </>
   );
 }
 
