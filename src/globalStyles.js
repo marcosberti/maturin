@@ -102,6 +102,10 @@ const GlobalStyles = () => (
           margin: 0;
         }
       }
+      input,
+      button {
+        outline: none;
+      }
     `}
   />
 );
