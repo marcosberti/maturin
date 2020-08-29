@@ -1,12 +1,14 @@
 /**@jsx jsx */
 import { jsx, css } from '@emotion/core';
+import ItemList from '../components/itemList';
 
 const Home = ({ greeting }) => {
   return (
     <section
       css={css`
         text-align: center;
-        margin-top: 2rem;
+        margin: 2rem auto 0;
+        max-width: 1000px;
       `}
     >
       <h1>{greeting}</h1>
@@ -19,6 +21,7 @@ const Home = ({ greeting }) => {
       >
         Libros y merchandasing de Stephen King
       </h2>
+      <ItemList />
     </section>
   );
 };

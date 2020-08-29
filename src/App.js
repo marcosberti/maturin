@@ -12,7 +12,7 @@ const App = () => (
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr auto;
-      ${mq.medium}, ${mq.large} {
+      ${mq.large} {
         grid-template-rows: auto 1fr;
       }
     `}

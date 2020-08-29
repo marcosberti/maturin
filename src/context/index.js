@@ -1,8 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+// import { BrowserRouter as Router } from 'react-router-dom';
 // import { ToastContainer, toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToastify.min.css';
 import { AuthProvider } from './auth-context';
+import { DataProvider } from './data-context';
 
 function AppProviders({ children }) {
   return (
@@ -17,7 +18,9 @@ function AppProviders({ children }) {
         progress={undefined}
       /> */}
       {/* <Router> */}
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        <DataProvider>{children}</DataProvider>
+      </AuthProvider>
       {/* </Router> */}
     </>
   );
