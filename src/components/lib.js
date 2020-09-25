@@ -33,7 +33,12 @@ const StyledItem = ({
   wrapperProps = {},
   ...rest
 }) => (
-  <li {...rest}>
+  <li
+    css={{
+      width: '100%',
+    }}
+    {...rest}
+  >
     <Wrapper
       css={{
         padding: '0.5rem',
@@ -92,13 +97,12 @@ const buttonVariants = {
   },
 };
 
-const StyledButton = styled.button`
+const Button = styled.button`
   border-radius: 5px;
   padding: 0.5rem 1rem;
-  max-width: 100px;
   cursor: pointer;
   ${(props) =>
     props.primary ? buttonVariants.primary : buttonVariants.secondary}
 `;
 
-export { Nav, List, StyledItem, NavItem, StyledButton };
+export { Nav, List, StyledItem, NavItem, Button };

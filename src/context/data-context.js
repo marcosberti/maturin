@@ -1,78 +1,30 @@
 import React from 'react';
 import nprogress from 'nprogress';
+import { getCollection } from '../firebase';
 
 const DataContext = React.createContext();
 DataContext.displayName = 'DataContext';
 
-const IDIOMAS = {
-  ingles: 'Inglés',
-  español: 'Español',
-};
-
-const EDICION = {
-  bolsillo: 'Bolsillo',
-  tapaDura: 'Tapa dura',
-  rustica: 'Rustica',
-};
-
-const ESTADOS = {
-  nuevo: 'Nuevo',
-  usado: 'Usado',
-};
-
-const libro = {
-  id: Math.ceil(Math.random() * (1 + 10000) + 1),
-  titulo: 'IT',
-  descripcion:
-    'Nueva edición en inglés, en tapas duras con sobrecubierta, publicado por Scribner.',
-  fecha: new Date(),
-  stock: 5,
-  precio: 3000,
-  descuento: 0,
-  imagenes: [
-    {
-      url:
-        'https://www.restaurantdelamente.com/stephen-king/img/p/2758-6262-thickbox.jpg',
-    },
-    {
-      url:
-        'https://www.restaurantdelamente.com/stephen-king/img/p/2758-6263-thickbox.jpg',
-    },
-  ],
-  isnb: '9781501142970',
-  publicacion: 2017,
-  idioma: IDIOMAS.ingles,
-  // nroEdicion
-  edicion: EDICION.tapaDura,
-  paginas: '1138',
-  estado: ESTADOS.nuevo,
-  sinopsis: `¿Quién o qué mutila y mata a los niños de un pequeño pueblo norteamericano? ¿Por qué llega cíclicamente el horror a Derry en forma de un payaso siniestro que va sembrando la destrucción a su paso? Esto es lo que se proponen averiguar los protagonistas de esta novela.
-    Tras veintisiete años de tranquilidad y lejanía una antigua promesa infantil les hace volver al lugar en el que vivieron su infancia y juventud como una terrible pesadilla. Regresan a Derry para enfrentarse con su pasado y enterrar definitivamente la amenaza que los amargó durante su niñez. Saben que pueden morir, pero son conscientes de que no conocerán la paz hasta que aquella cosa sea destruida para siempre.`,
-  firmado: false,
-  nroCopia: '',
-};
-
 const getData = async () => {
-  return Promise.resolve([
-    libro,
-    { ...libro, stock: 0, id: Math.ceil(Math.random() * (1 + 10000) + 1) },
-    { ...libro, descuento: 20, id: Math.ceil(Math.random() * (1 + 10000) + 1) },
-  ]);
+  return await getCollection('books');
 };
 
 const DataProvider = (props) => {
   const [libros, setLibros] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     nprogress.start();
     setTimeout(async () => {
       const data = await getData();
+      console.log('data', data);
       nprogress.done();
       setLibros(data);
+      setLoading(false);
     }, 2000);
   }, []);
 
-  return <DataContext.Provider value={libros} {...props} />;
+  return <DataContext.Provider value={{ libros, loading }} {...props} />;
 };
 
 const useData = () => {

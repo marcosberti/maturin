@@ -4,6 +4,7 @@ import React from 'react';
 // import 'react-toastify/dist/ReactToastify.min.css';
 import { AuthProvider } from './auth-context';
 import { DataProvider } from './data-context';
+import { CartProvider } from './cart-context';
 
 function AppProviders({ children }) {
   return (
@@ -19,7 +20,9 @@ function AppProviders({ children }) {
       /> */}
       {/* <Router> */}
       <AuthProvider>
-        <DataProvider>{children}</DataProvider>
+        <DataProvider>
+          <CartProvider>{children}</CartProvider>
+        </DataProvider>
       </AuthProvider>
       {/* </Router> */}
     </>

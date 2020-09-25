@@ -1,9 +1,10 @@
 /**@jsx jsx */
 import { css, jsx } from '@emotion/core';
+import { BrowserRouter as Router } from 'react-router-dom';
 import * as mq from './styles/media-queries';
 import GlobalStyles from './globalStyles';
-import Home from './screens/home';
 import Navbar from './components/navbar';
+import AppRoutes from './app-routes';
 
 const App = () => (
   <div
@@ -18,8 +19,10 @@ const App = () => (
     `}
   >
     <GlobalStyles />
-    <Navbar />
-    <Home greeting="Bienvenidos a Maturin's Books " />
+    <Router>
+      <Navbar />
+      <AppRoutes />
+    </Router>
   </div>
 );
 

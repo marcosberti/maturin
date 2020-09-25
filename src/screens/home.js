@@ -1,6 +1,6 @@
 /**@jsx jsx */
 import { jsx, css } from '@emotion/core';
-import ItemList from '../components/itemList';
+import BookList from '../components/book-list';
 
 const Home = ({ greeting }) => {
   return (
@@ -9,6 +9,7 @@ const Home = ({ greeting }) => {
         text-align: center;
         margin: 2rem auto 0;
         max-width: 1000px;
+        width: 100%;
       `}
     >
       <h1>{greeting}</h1>
@@ -21,7 +22,7 @@ const Home = ({ greeting }) => {
       >
         Libros y merchandasing de Stephen King
       </h2>
-      <ItemList />
+      <BookList />
     </section>
   );
 };

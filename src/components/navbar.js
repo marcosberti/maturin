@@ -1,5 +1,6 @@
 /**@jsx jsx */
 import { css, jsx } from '@emotion/core';
+import { Link } from 'react-router-dom';
 import { Nav, List, NavItem } from './lib';
 import {
   HomeIcon,
@@ -13,7 +14,15 @@ const Navbar = () => (
   <Nav>
     <List navList>
       <NavItem navIcon={HomeIcon} smallOrder={1}>
-        Maturin's <br /> Books
+        <Link
+          to="/"
+          css={css`
+            text-decoration: none;
+            color: inherit;
+          `}
+        >
+          Maturin's <br /> Books
+        </Link>
       </NavItem>
       <NavItem navIcon={SearchIcon} smallOrder={2}>
         <input
@@ -104,7 +113,11 @@ const Navbar = () => (
       >
         Ingresar
       </NavItem>
-      <NavItem navIcon={CartIcon} iconSize={32} smallOrder={3} />
+      <NavItem smallOrder={3}>
+        <Link to="/cart">
+          <CartIcon size={32} />
+        </Link>
+      </NavItem>
     </List>
   </Nav>
 );
