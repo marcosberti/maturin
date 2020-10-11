@@ -31,7 +31,7 @@ const AuthProvider = (props) => {
     isError,
     isSuccess,
     setData,
-  } = useAsync();
+  } = useAsync({ status: 'resolved' });
 
   const login = React.useCallback(async (email, password) => {
     // await authLogin(email, password);
@@ -58,15 +58,14 @@ const AuthProvider = (props) => {
 
   React.useEffect(() => {
     // nprogress.start();
-    const run = async () => {
-      setData(null);
-      //   authStateChange(async (user) => {
-      //     setData(await getUserData(user));
-      //     nprogress.done();
-      //   });
-    };
-
-    run();
+    // const run = async () => {
+    //   setData(null);
+    //   //   authStateChange(async (user) => {
+    //   //     setData(await getUserData(user));
+    //   //     nprogress.done();
+    //   //   });
+    // };
+    // run();
   }, [setData]);
 
   if (isLoading || isIdle) {

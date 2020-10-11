@@ -15,7 +15,6 @@ function useSafeDispatch(dispatch) {
     [dispatch]
   );
 }
-
 // Example usage:
 // const {data, error, status, run} = useAsync()
 // React.useEffect(() => {
@@ -27,10 +26,28 @@ function useAsync(initialState) {
     ...defaultInitialState,
     ...initialState,
   });
-  const [{ status, data, error }, setState] = React.useReducer(
-    (s, a) => ({ ...s, ...a }),
-    initialStateRef.current
-  );
+  const [{ status, data, error }, setState] = React.useReducer((s, a) => {
+    if (a.status === 'resolved') {
+      return {
+        ...s,
+        ...a,
+        data: {
+          ...s.data,
+          ...a.data,
+          libros: a.data.libros.reduce((libros, libro) => {
+            const existe = Boolean(libros.find(({ id }) => id === libro.id));
+            if (!existe) {
+              return [...libros, libro];
+            }
+            return libros;
+          }, s.data.libros),
+          fetchedCat: [...s.data.fetchedCat, ...a.data.fetchedCat],
+        },
+      };
+    }
+
+    return { ...s, ...a };
+  }, initialStateRef.current);
 
   const safeSetState = useSafeDispatch(setState);
 
@@ -54,7 +71,7 @@ function useAsync(initialState) {
   ]);
 
   const run = React.useCallback(
-    (promise) => {
+    (promise, category) => {
       if (!promise || !promise.then) {
         throw new Error(
           `The argument passed to useAsync().run must be a promise. Maybe a function that's passed isn't returning anything?`
@@ -64,9 +81,9 @@ function useAsync(initialState) {
       safeSetState({ status: 'pending' });
       return promise
         .then(
-          (data) => {
-            setData(data);
-            return data;
+          (result) => {
+            setData({ ...result, fetchedCat: category ? [category] : [] });
+            return result;
           },
           (error) => {
             setError(error);

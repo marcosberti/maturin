@@ -1,3 +1,7 @@
+export const primary = {
+  400: '#5bae7b',
+};
+
 export const neutral = {
   100: '#fff',
   200: '#f4f5f7',

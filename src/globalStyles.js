@@ -88,14 +88,15 @@ const GlobalStyles = () => (
       *:before,
       *:after {
         box-sizing: inherit;
+        font-family: 'Poppins', sans-serif;
       }
       html,
       body {
         padding: 0;
         margin: 0;
         background: #fff;
-        min-height: 100%;
-        font-family: 'Poppins', sans-serif;
+        /* min-height: 100%; */
+        /* font-family: 'Poppins', sans-serif; */
 
         & * {
           padding: 0;
@@ -105,6 +106,17 @@ const GlobalStyles = () => (
       input,
       button {
         outline: none;
+      }
+      button {
+        border: none;
+        background-color: inherit;
+        color: inherit;
+        font-weight: inherit;
+        cursor: pointer;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
       }
     `}
   />

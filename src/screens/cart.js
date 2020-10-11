@@ -1,25 +1,213 @@
 /**@jsx jsx */
 import React from 'react';
 import { css, jsx } from '@emotion/core';
+import { toast } from 'react-toastify';
+import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import nProgress from 'nprogress';
 import { useData } from '../context/data-context';
 import { useCart } from '../context/cart-context';
-import { List, StyledItem } from '../components/lib';
+import { Content, Button } from '../components/lib';
+import * as mq from '../styles/media-queries';
+import OrderList from '../components/order-list';
+import { addOrden } from '../firebase';
 
-const Cart = () => {
-  const { libros } = useData();
-  const { cartItems } = useCart();
-
-  console.log('cart', cartItems);
-
-  return (
+const ItemsCarrito = ({ conItems, items }) =>
+  conItems ? (
+    <OrderList items={items} />
+  ) : (
     <div
       css={css`
-        width: 100%;
-        max-width: 1000px;
-        margin: 0 auto;
-        margin-top: 3rem;
+        flex-basis: 100%;
+        ${mq.large} {
+          flex-basis: 60%;
+        }
       `}
     >
+      <span
+        css={css`
+          display: block;
+          box-shadow: 0px 0px 5px 2px #ccc;
+          text-align: center;
+          padding: 1rem;
+          border-radius: 5px;
+        `}
+      >
+        Carrito vacío.{' '}
+        <Link
+          to="/"
+          css={css`
+            color: #4c4cea;
+            :hover {
+              opacity: 0.7;
+            }
+          `}
+        >
+          Volver al home
+        </Link>{' '}
+        para seguir comprando
+      </span>
+    </div>
+  );
+
+const Label = ({ htmlFor, text }) => (
+  <label
+    htmlFor={htmlFor}
+    css={css`
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      left: -200%;
+    `}
+  >
+    {text}
+  </label>
+);
+
+const Input = (props) => (
+  <input
+    {...props}
+    css={css`
+      margin-bottom: 2rem;
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      :disabled {
+        background-color: inherit;
+      }
+    `}
+  />
+);
+
+const FormularioCompra = ({ disabled, items }) => {
+  const history = useHistory();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { nombre, apellido, telefono, mail, mailConf } = e.target.elements;
+
+    if (mail.value !== mailConf.value) {
+      toast.error('Los mails no coinciden');
+      return;
+    }
+
+    const orden = {
+      nombre: nombre.value,
+      apellido: apellido.value,
+      telefono: telefono.value,
+      mail: mail.value,
+      items,
+    };
+
+    try {
+      nProgress.start();
+      const id = await addOrden(orden);
+      history.push(`/order/${id}`);
+    } catch ({ message }) {
+      toast.error(message);
+    } finally {
+      nProgress.done();
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      css={css`
+        flex-basis: 100%;
+        margin-top: 2rem;
+        box-shadow: 0px 0px 5px 2px #ccc;
+        text-align: center;
+        padding: 2rem;
+        border-radius: 5px;
+
+        ${mq.large} {
+          margin-top: 0rem;
+          flex-basis: 30%;
+        }
+      `}
+    >
+      <fieldset
+        disabled={disabled}
+        css={css`
+          border: none;
+          margin: 0;
+          padding: 0;
+          opacity: ${disabled ? 0.75 : 1};
+        `}
+      >
+        <Label htmlFor="nombre" text="nombre" />
+        <Input
+          type="text"
+          id="nombre"
+          name="nombre"
+          placeholder="nombre"
+          required
+        />
+        <Label htmlFor="apellido" text="apellido" />
+        <Input
+          type="text"
+          id="apellido"
+          name="apellido"
+          placeholder="apellido"
+          required
+        />
+        <Label htmlFor="telefono" text="telefono" />
+        <Input
+          type="tel"
+          id="telefono"
+          name="telefono"
+          placeholder="telefono"
+        />
+        <Label htmlFor="mail" text="mail" />
+        <Input type="email" id="mail" name="mail" placeholder="mail" required />
+        <Label htmlFor="mailConf" text="confirmar mail" />
+        <Input
+          type="email"
+          id="mailConf"
+          name="mailConf"
+          placeholder="confirmar mail"
+          required
+        />
+        <Button
+          type="submit"
+          css={css`
+            width: 100%;
+            padding: 1rem;
+            cursor: ${disabled ? 'default' : 'pointer'};
+          `}
+        >
+          Finalizar compra
+        </Button>
+      </fieldset>
+    </form>
+  );
+};
+const Cart = () => {
+  const {
+    data: { libros },
+  } = useData();
+  const { cartItems } = useCart();
+  const items = cartItems.reduce((data, id) => {
+    if (!data[id]) {
+      const libro = libros.find(({ id: _id }) => _id === id);
+      data[id] = {
+        titulo: libro.titulo,
+        imagen: libro.imagenes[0],
+        cantidad: 0,
+        precio: libro.precio,
+        total: 0,
+      };
+    }
+    data[id].cantidad += 1;
+    data[id].total = data[id].cantidad * data[id].precio;
+    return data;
+  }, {});
+
+  const conItems = Boolean(Object.keys(items).length);
+  console.log('con', conItems);
+
+  return (
+    <Content>
       <span
         css={css`
           font-size: 2rem;
@@ -32,46 +220,19 @@ const Cart = () => {
         Items en carrito
       </span>
 
-      <List
+      <div
         css={css`
-          box-shadow: 0px 0px 5px 2px #ccc;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
           margin-top: 3rem;
+          flex-wrap: wrap;
         `}
       >
-        {cartItems.map(({ id, cantidad }) => {
-          const libro = libros.find(({ id: _id }) => _id === id);
-          return (
-            <StyledItem
-              key={id}
-              css={css`
-                & > * {
-                  display: flex;
-                  justify-content: space-between;
-                }
-              `}
-            >
-              <span
-                css={css`
-                  font-size: 1.5em;
-                  font-weight: 500;
-                `}
-              >
-                {libro.titulo}
-              </span>
-              <span>x{cantidad}</span>
-              <span
-                css={css`
-                  font-size: 1.5em;
-                  font-weight: 500;
-                `}
-              >
-                ARS {libro.precio}
-              </span>
-            </StyledItem>
-          );
-        })}
-      </List>
-    </div>
+        <ItemsCarrito conItems={conItems} items={items} />
+        <FormularioCompra disabled={!conItems} items={items} />
+      </div>
+    </Content>
   );
 };
 

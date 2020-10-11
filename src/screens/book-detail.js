@@ -1,197 +1,129 @@
 /**@jsx jsx */
 import React from 'react';
 import { css, jsx } from '@emotion/core';
-import { useParams, useHistory } from 'react-router-dom';
+import { Redirect, useParams, useHistory } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useCart } from '../context/cart-context';
-import { Button } from '../components//lib';
-// import { AddIcon } from '../assets/icons/';
-import { neutral } from '../styles/colors';
 import { useData } from '../context/data-context';
+import {
+  Content,
+  BookDetails,
+  BookActions,
+  Button,
+  List,
+  BookQty,
+} from '../components//lib';
+import { primary } from '../styles/colors';
+import * as mq from '../styles/media-queries';
 
-const BookDetail = ({ agregarItem }) => {
-  const { id } = useParams();
-  const history = useHistory();
-  const { libros, loading } = useData();
-  const { addToCart } = useCart();
-  const [cantidad, setCantidad] = React.useState(0);
-
-  const libro = libros.find(({ id: _id }) => _id === id);
-  console.log('libro', libro);
-
-  if (loading) {
-    return (
-      <div
-        css={css`
-          padding-top: 5rem;
-          width: 12rem;
-          margin: 0 auto;
-          text-align: center;
-          letter-spacing: 2px;
-          font-weight: 500;
-        `}
-      >
-        Cargando datos
-      </div>
-    );
-  }
+const BookImages = ({ titulo, imagenes }) => {
+  const [index, setIndex] = React.useState(0);
 
   return (
     <div
       css={css`
-        padding: 3rem 5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        ${mq.large} {
+          display: block;
+        }
       `}
     >
-      <div
+      <img
+        src={imagenes[index]}
+        alt={titulo}
         css={css`
-          display: flex;
-        `}
-      >
-        <img
-          src={libro.imagenes[0]}
-          alt={libro.titulo}
-          css={css`
-            max-width: 25rem;
-            object-fit: contain;
-            flex-basis: 25rem;
-          `}
-        />
-        <div
-          css={css`
-            text-align: start;
-            padding-top: 1rem;
-            flex-basis: 100%;
-          `}
-        >
-          <span
-            css={css`
-              font-size: 6rem;
-              font-weight: 600;
-              display: inline-block;
-            `}
-          >
-            {libro.titulo}
-          </span>
-          <span
-            css={css`
-              color: ${neutral[400]};
-              font-weight: 500;
-              font-size: 1.4em;
-            `}
-          >
-            ({libro.idioma.toUpperCase()})
-          </span>
-          <span
-            css={css`
-              display: block;
-              color: ${neutral[500]};
-            `}
-          >
-            {libro.descripcion}
-          </span>
-          <span
-            css={css`
-              display: inline-block;
-              margin-top: 1rem;
-              font-weight: 600;
-              font-size: 1.5em;
-            `}
-          >
-            ARS {libro.precio}
-          </span>
+          max-width: 20rem;
+          object-fit: contain;
+          flex-basis: 25rem;
+          box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.125);
+          border-radius: 5px;
 
-          <div
+          ${mq.large} {
+            max-width: 25rem;
+          }
+        `}
+        height="400px"
+        width="400px"
+      />
+      <List images>
+        {imagenes.map((imagen, i) => (
+          <li
+            onClick={() => setIndex(i)}
             css={css`
-              width: 100%;
-              margin-top: 2rem;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
+              border: 2px solid ${index === i ? primary[400] : '#fff'};
             `}
+            key={imagen}
           >
-            <Button
-              secondary
-              css={css`
-                flex-basis: 10%;
-                height: 3rem;
-              `}
-              onClick={(e) => {
-                e.preventDefault();
-                setCantidad(cantidad ? cantidad - 1 : cantidad);
-              }}
-            >
-              -
-            </Button>
-            <span
-              css={css`
-                flex-basis: 10%;
-                text-align: center;
-                height: 1rem;
-                outline: none;
-                border: none;
-                height: 3rem;
-                -moz-appearance: textfield;
-                &::-webkit-outer-spin-button,
-                &::-webkit-inner-spin-button {
-                  -webkit-appearance: none;
-                  margin: 0;
-                }
-              `}
-            >
-              {cantidad}
-            </span>
-            <Button
-              secondary
-              css={css`
-                flex-basis: 10%;
-                height: 3rem;
-              `}
-              onClick={(e) => {
-                e.preventDefault();
-                setCantidad(cantidad + 1);
-              }}
-            >
-              +{/* <AddIcon fill={neutral[600]} /> */}
-            </Button>
-            <Button
-              secondary
-              css={css`
-                flex-basis: 60%;
-                height: 3em;
-              `}
-              onClick={(e) => {
-                e.preventDefault();
-                addToCart(libro);
-              }}
-            >
-              Agregar al carrito
-            </Button>
-          </div>
+            <img src={imagen} alt={titulo} height="64px" width="64px" />
+          </li>
+        ))}
+      </List>
+    </div>
+  );
+};
+
+const BookDetail = () => {
+  const { id } = useParams();
+  const history = useHistory();
+  const {
+    data: { libros },
+  } = useData();
+  const { addToCart } = useCart();
+  const [cantidad, setCantidad] = React.useState(1);
+
+  const libro = libros.find(({ id: _id }) => _id === id);
+
+  if (!libro) {
+    toast.error('No existe el producto');
+    return <Redirect to="/" />;
+  }
+
+  return (
+    <Content bookDetail>
+      <div>
+        <BookImages titulo={libro.titulo} imagenes={libro.imagenes} />
+        <BookDetails>
+          <span>{libro.titulo}</span>
+          <span>$ {libro.precio}</span>
+          <span>{libro.descripcion}</span>
+        </BookDetails>
+
+        <BookActions>
+          <BookQty cantidad={cantidad} setCantidad={setCantidad} />
           <Button
             primary
-            css={css`
-              width: 100%;
-              height: 3rem;
-              margin-top: 2rem;
-            `}
             onClick={(e) => {
               e.preventDefault();
-              addToCart(libro);
+              addToCart(libro.id, cantidad);
               history.push('/cart');
             }}
           >
-            Comprar
+            Comprar{'  '}(x{cantidad})
           </Button>
-        </div>
+          <Button
+            secondary
+            onClick={(e) => {
+              e.preventDefault();
+              addToCart(libro.id, cantidad);
+            }}
+          >
+            Agregar al carrito
+          </Button>
+        </BookActions>
       </div>
       <div
         css={css`
           margin-top: 4rem;
           width: 100%;
+          padding: 1rem;
         `}
       >
         {libro.sinopsis}
       </div>
-    </div>
+    </Content>
   );
 };
 

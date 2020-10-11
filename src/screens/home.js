@@ -1,29 +1,19 @@
-/**@jsx jsx */
-import { jsx, css } from '@emotion/core';
+import React from 'react';
 import BookList from '../components/book-list';
+import { Content } from '../components/lib';
+import { useData } from '../context/data-context';
 
-const Home = ({ greeting }) => {
+const Home = () => {
+  const {
+    data: { libros },
+  } = useData();
   return (
-    <section
-      css={css`
-        text-align: center;
-        margin: 2rem auto 0;
-        max-width: 1000px;
-        width: 100%;
-      `}
-    >
-      <h1>{greeting}</h1>
-      <h2
-        css={css`
-          margin-top: 1rem;
-          font-weight: 300;
-          font-size: 1em;
-        `}
-      >
-        Libros y merchandasing de Stephen King
-      </h2>
-      <BookList />
-    </section>
+    <Content home>
+      <h1>¡Te damos la bienvenida a Maturin's books!</h1>
+      <h2>Libros y merchandasing de Stephen King</h2>
+      <h3>Novedades</h3>
+      <BookList libros={libros.slice(0, 6)} />
+    </Content>
   );
 };
 
