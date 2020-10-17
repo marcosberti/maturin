@@ -7,7 +7,8 @@ import { Link } from 'react-router-dom';
 import nProgress from 'nprogress';
 import { useData } from '../context/data-context';
 import { useCart } from '../context/cart-context';
-import { Content, Button } from '../components/lib';
+import { useAuth } from '../context/auth-context';
+import { Content, Button, Label, Input } from '../components/lib';
 import * as mq from '../styles/media-queries';
 import OrderList from '../components/order-list';
 import { addOrden } from '../firebase';
@@ -50,42 +51,14 @@ const ItemsCarrito = ({ conItems, items }) =>
     </div>
   );
 
-const Label = ({ htmlFor, text }) => (
-  <label
-    htmlFor={htmlFor}
-    css={css`
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      left: -200%;
-    `}
-  >
-    {text}
-  </label>
-);
-
-const Input = (props) => (
-  <input
-    {...props}
-    css={css`
-      margin-bottom: 2rem;
-      width: 100%;
-      border: none;
-      border-bottom: 1px solid #ccc;
-      :disabled {
-        background-color: inherit;
-      }
-    `}
-  />
-);
-
 const FormularioCompra = ({ disabled, items }) => {
+  const { user } = useAuth();
   const history = useHistory();
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { nombre, apellido, telefono, mail, mailConf } = e.target.elements;
 
-    if (mail.value !== mailConf.value) {
+    if (!user && mail.value !== mailConf.value) {
       toast.error('Los mails no coinciden');
       return;
     }
@@ -101,7 +74,7 @@ const FormularioCompra = ({ disabled, items }) => {
     try {
       nProgress.start();
       const id = await addOrden(orden);
-      history.push(`/order/${id}`);
+      history.push(`/orders/${id}`);
     } catch ({ message }) {
       toast.error(message);
     } finally {
@@ -159,15 +132,26 @@ const FormularioCompra = ({ disabled, items }) => {
           placeholder="telefono"
         />
         <Label htmlFor="mail" text="mail" />
-        <Input type="email" id="mail" name="mail" placeholder="mail" required />
-        <Label htmlFor="mailConf" text="confirmar mail" />
         <Input
           type="email"
-          id="mailConf"
-          name="mailConf"
-          placeholder="confirmar mail"
+          id="mail"
+          name="mail"
+          placeholder="mail"
           required
+          defaultValue={user?.email || null}
         />
+        {!user && (
+          <React.Fragment>
+            <Label htmlFor="mailConf" text="confirmar mail" />
+            <Input
+              type="email"
+              id="mailConf"
+              name="mailConf"
+              placeholder="confirmar mail"
+              required
+            />
+          </React.Fragment>
+        )}
         <Button
           type="submit"
           css={css`
@@ -204,7 +188,6 @@ const Cart = () => {
   }, {});
 
   const conItems = Boolean(Object.keys(items).length);
-  console.log('con', conItems);
 
   return (
     <Content>

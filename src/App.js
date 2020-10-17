@@ -12,6 +12,7 @@ const App = () => (
   <div
     css={css`
       /* height: 100%; */
+      overflow: hidden;
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: auto 3rem;

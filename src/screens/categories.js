@@ -4,7 +4,7 @@ import BookList from '../components/book-list';
 import { Content } from '../components/lib';
 import { useData } from '../context/data-context';
 
-let Categories = () => {
+const Categories = () => {
   const { categoryId } = useParams();
   const { data, getData } = useData();
 
@@ -29,7 +29,5 @@ let Categories = () => {
     </Content>
   );
 };
-
-Categories = React.memo(Categories);
 
 export default Categories;

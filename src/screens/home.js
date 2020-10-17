@@ -7,6 +7,7 @@ const Home = () => {
   const {
     data: { libros },
   } = useData();
+
   return (
     <Content home>
       <h1>¡Te damos la bienvenida a Maturin's books!</h1>

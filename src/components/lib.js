@@ -1,4 +1,5 @@
 /**@jsx jsx */
+import React from 'react';
 import { css, jsx } from '@emotion/core';
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
@@ -76,8 +77,9 @@ const ListItem = styled.li`
     border-bottom: none;
     box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.125);
     margin-bottom: 2rem;
-    flex-basis: 30%;
+    flex-basis: ${({ orderItem }) => (orderItem ? 100 : 30)}%;
   }
+
   & > a {
     padding: 1rem;
     display: flex;
@@ -142,6 +144,7 @@ const Item = ({ children, onClick, to, ...rest }) => {
       <Wrapper
         css={css`
           padding: 0.5rem;
+          display: inline-block;
           ${mq.large} {
             padding: 1rem;
           }
@@ -169,6 +172,7 @@ const ItemNoData = (props) => (
 
 const NavItem = ({
   navIcon: NavIcon,
+  text,
   children,
   smallOrder,
   iconSize = 24,
@@ -185,15 +189,18 @@ const NavItem = ({
       `}
       {...rest}
     >
-      {children ? (
-        isMobile ? (
-          <NavIcon />
-        ) : (
-          children
-        )
-      ) : (
-        <NavIcon {...(isMobile ? { size: iconSize } : null)} />
-      )}
+      <span
+        css={css`
+          display: none;
+          ${mq.large} {
+            display: inline-block;
+          }
+        `}
+      >
+        {text}
+      </span>
+      {NavIcon && isMobile ? <NavIcon iconSize={iconSize} /> : null}
+      {children}
     </Item>
   );
 };
@@ -224,36 +231,6 @@ const Button = styled.button`
       ? null
       : buttonVariants.primary}
 `;
-
-const FullPageLoading = () => (
-  <div
-    css={css`
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      flex-flow: column;
-      align-items: center;
-    `}
-  >
-    <Loader fill="#72b88d" size={120} />
-    <span
-      css={css`
-        margin-top: 2rem;
-        display: block;
-        text-align: center;
-        color: ${neutral[500]};
-        text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 1px;
-        font-family: 'Poppins', sans-serif;
-      `}
-    >
-      Cargando datos
-    </span>
-  </div>
-);
 
 const Content = styled.section`
   padding: 3rem 1rem;
@@ -477,6 +454,163 @@ const BookQty = ({ cantidad, setCantidad }) => (
   </Quantity>
 );
 
+const FullPageLoading = () => (
+  <div
+    css={css`
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+    `}
+  >
+    <Loader fill="#72b88d" size={120} />
+    <span
+      css={css`
+        margin-top: 2rem;
+        display: block;
+        text-align: center;
+        color: ${neutral[500]};
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1px;
+        font-family: 'Poppins', sans-serif;
+      `}
+    >
+      Cargando datos
+    </span>
+  </div>
+);
+
+const FullPageErrorFallback = ({ error }) => {
+  const message = typeof error === 'string' ? error : error.message;
+
+  return (
+    <React.Fragment>
+      <div
+        role="alert"
+        css={css`
+          font-family: monospace;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          ${mq.large} {
+            flex-direction: row;
+            margin-top: 14rem;
+            justify-content: center;
+          }
+        `}
+      >
+        <div
+          css={css`
+            order: 2;
+            flex-basis: 100%;
+            text-align: center;
+
+            ${mq.large} {
+              text-align: start;
+              order: 1;
+              flex-basis: 30%;
+              max-width: 30rem;
+            }
+          `}
+        >
+          <span
+            css={css`
+              display: block;
+              text-transform: uppercase;
+              color: ${neutral[700]};
+              font-weight: bold;
+              font-size: 2.5rem;
+              letter-spacing: 1px;
+              margin-bottom: 1.5rem;
+            `}
+          >
+            Parece que hubo un error en el servidor
+          </span>
+          <span
+            css={css`
+              display: block;
+              text-transform: uppercase;
+            `}
+          >
+            Actualice la aplicación
+          </span>
+        </div>
+
+        <span
+          css={css`
+            font-size: 12rem;
+            font-weight: 900;
+            color: #ccc;
+            opacity: 0.75;
+            order: 1;
+            flex-basis: 100%;
+
+            ${mq.large} {
+              order: 2;
+              flex-basis: 25%;
+            }
+          `}
+        >
+          505
+        </span>
+      </div>
+      <pre
+        css={css`
+          display: block;
+          text-transform: uppercase;
+          font-size: 2rem;
+          margin: 2rem auto;
+          white-space: normal;
+          text-align: center;
+
+          ${mq.large} {
+            text-align: start;
+            width: 50rem;
+          }
+        `}
+      >
+        {message}
+      </pre>
+    </React.Fragment>
+  );
+};
+
+const Label = ({ htmlFor, text }) => (
+  <label
+    htmlFor={htmlFor}
+    css={css`
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      left: -200%;
+    `}
+  >
+    {text}
+  </label>
+);
+
+const Input = (props) => (
+  <input
+    {...props}
+    css={css`
+      margin-bottom: 2rem;
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      :disabled {
+        background-color: inherit;
+      }
+    `}
+  />
+);
+
 export {
   Nav,
   List,
@@ -486,8 +620,11 @@ export {
   NavItem,
   Button,
   FullPageLoading,
+  FullPageErrorFallback,
   Content,
   BookDetails,
   BookActions,
   BookQty,
+  Label,
+  Input,
 };

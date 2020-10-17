@@ -1,18 +1,24 @@
 /**@jsx jsx */
+import React from 'react';
 import { css, jsx } from '@emotion/core';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/cart-context';
 import { useData } from '../context/data-context';
+import { useAuth } from '../context/auth-context';
 import { Nav, List, NavItem } from './lib';
 import {
   HomeIcon,
-  SearchIcon,
   CategoriesIcon,
   CartIcon,
   UserIcon,
+  LogoutIcon,
+  OrdersIcon,
 } from '../assets/icons';
+import * as mq from '../styles/media-queries';
+import { useScreen } from '../hooks';
 
-const NavCategories = () => {
+const NavCategories = ({ isOpen }) => {
+  const { isMobile } = useScreen();
   const {
     data: { categorias },
   } = useData();
@@ -20,15 +26,32 @@ const NavCategories = () => {
   return (
     <div
       css={css`
-        position: absolute;
         display: none;
-        background-color: #fff;
-        color: #000;
-        border-radius: 5px;
-        left: 50%;
-        transform: translateX(-50%);
-        margin-top: 1rem;
-        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25);
+        position: absolute;
+
+        ${isOpen && isMobile
+          ? css`
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              top: 0;
+              left: 0;
+              height: calc(100vh - 3rem);
+              width: 100vw;
+              background-color: #fff;
+              z-index: 999;
+            `
+          : null}
+
+        ${mq.large} {
+          background-color: #fff;
+          color: #000;
+          border-radius: 5px;
+          left: 50%;
+          transform: translateX(-50%);
+          margin-top: 1rem;
+          box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25);
+        }
       `}
     >
       <ul
@@ -36,19 +59,26 @@ const NavCategories = () => {
           list-style: none;
           & > * {
             color: #aaa;
-            font-size: 0.8em;
-            font-weight: 300;
-            transition: background-color 0.25s ease, color 0.25s ease;
-            :not(:last-child) {
-              border-bottom: 1px solid #ddd;
-            }
+            border-bottom: 1px solid #ddd;
             :first-of-type {
-              border-top-left-radius: 5px;
-              border-top-right-radius: 5px;
+              border-top: 1px solid #ddd;
             }
-            :last-child {
-              border-bottom-left-radius: 5px;
-              border-bottom-right-radius: 5px;
+
+            ${mq.large} {
+              font-size: 0.8em;
+              font-weight: 300;
+              transition: background-color 0.25s ease, color 0.25s ease;
+              :not(:last-child) {
+                border-bottom: 1px solid #ddd;
+              }
+              :first-of-type {
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+              }
+              :last-child {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+              }
             }
             :hover {
               background-color: #5bae7b;
@@ -73,49 +103,70 @@ const NavCategories = () => {
 };
 
 const Navbar = () => {
+  const { user, logout } = useAuth();
   const { cartItems } = useCart();
+  const [isOpen, setIsOpen] = React.useState(false);
 
   return (
     <Nav>
       <List navList>
-        <NavItem navIcon={HomeIcon} smallOrder={1} to="/">
-          Maturin's <br /> Books
-        </NavItem>
-        <NavItem navIcon={SearchIcon} smallOrder={2}>
-          <input
-            css={css`
-              height: 1.8em;
-            `}
-            type="search"
-            placeholder="Buscar"
-          />
-        </NavItem>
         <NavItem
+          text={
+            <span>
+              Maturin's <br /> Books
+            </span>
+          }
+          navIcon={HomeIcon}
+          smallOrder={1}
+          to="/"
+        />
+
+        <NavItem
+          text="Categorias"
           navIcon={CategoriesIcon}
-          smallOrder={4}
-          css={{
-            position: 'relative',
-            cursor: 'pointer',
-            ':hover': {
-              '& > div > div': {
-                display: 'block',
-              },
-            },
-          }}
+          smallOrder={2}
+          onClick={() => setIsOpen(!isOpen)}
+          css={css`
+            ${mq.large} {
+              position: relative;
+              cursor: pointer;
+              :hover {
+                & > button > div {
+                  display: block;
+                }
+              }
+            }
+          `}
         >
-          Categorias
-          <NavCategories />
+          <NavCategories isOpen={isOpen} />
         </NavItem>
-        <NavItem
-          navIcon={UserIcon}
-          smallOrder={5}
-          onClick={(e) => {
-            console.error('handle login');
-          }}
-        >
-          Ingresar
-        </NavItem>
-        <NavItem navIcon={CartIcon} smallOrder={3} to="/cart">
+        {user ? (
+          <React.Fragment>
+            <NavItem
+              text="Mis ordenes"
+              navIcon={OrdersIcon}
+              smallOrder={4}
+              to="/orders"
+            />
+            <NavItem
+              text="Cerrar sesion"
+              navIcon={LogoutIcon}
+              smallOrder={5}
+              onClick={(e) => {
+                e.preventDefault();
+                logout();
+              }}
+            />
+          </React.Fragment>
+        ) : (
+          <NavItem
+            text="Ingresar"
+            navIcon={UserIcon}
+            smallOrder={5}
+            to="/login"
+          />
+        )}
+        <NavItem smallOrder={3} to="/cart">
           <CartIcon size={32} />
           <span>({cartItems.length})</span>
         </NavItem>

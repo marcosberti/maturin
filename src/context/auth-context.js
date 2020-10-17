@@ -1,25 +1,31 @@
 import React from 'react';
-// import nprogress from 'nprogress';
-// import { authLogin, authLogout, authReset, authStateChange } from '../firebase';
+import nprogress from 'nprogress';
+import {
+  authLogin,
+  authLogout,
+  authRegister,
+  authReset,
+  authStateChange,
+} from '../firebase';
 import { useAsync } from '../hooks/useAsync';
-// import { FullPageErrorFallback } from '../components/lib';
-// import { ADMIN_MAIL } from '../../private/adminConfig';
+import { FullPageLoading, FullPageErrorFallback } from '../components/lib';
+import { toast } from 'react-toastify';
 
 const AuthContext = React.createContext();
 AuthContext.displayName = 'AuthContext';
 
-// const getUserData = async (user) => {
-//   if (!user) return null;
+const getUserData = (user) => {
+  if (!user) return null;
 
-//   const { uid, email, displayName, photoURL } = user;
+  const { uid, email, displayName, photoURL } = user;
 
-//   return {
-//     uid,
-//     email,
-//     displayName,
-//     photoURL,
-//   };
-// };
+  return {
+    uid,
+    email,
+    displayName,
+    photoURL,
+  };
+};
 
 const AuthProvider = (props) => {
   const {
@@ -31,51 +37,60 @@ const AuthProvider = (props) => {
     isError,
     isSuccess,
     setData,
-  } = useAsync({ status: 'resolved' });
+    setError,
+  } = useAsync();
 
   const login = React.useCallback(async (email, password) => {
-    // await authLogin(email, password);
+    try {
+      nprogress.start();
+      await authLogin(email, password);
+    } catch ({ message }) {
+      toast.error(message);
+    }
   }, []);
 
   const logout = React.useCallback(() => {
-    // authLogout();
+    authLogout();
     setData(null);
   }, [setData]);
 
-  const update = React.useCallback((user) => setData(user), [setData]);
-
   const reset = React.useCallback((email) => {
-    // authReset(email);
+    authReset(email);
   }, []);
 
-  const value = React.useMemo(() => ({ user, login, logout, update, reset }), [
-    login,
-    logout,
-    user,
-    update,
-    reset,
-  ]);
+  const register = React.useCallback(
+    async (email, password) => {
+      const { error } = await authRegister(email, password);
+      if (error) {
+        setError(error.message);
+      }
+    },
+    [setError]
+  );
+
+  const value = React.useMemo(
+    () => ({ user, login, logout, reset, register }),
+    [login, logout, user, reset, register]
+  );
 
   React.useEffect(() => {
-    // nprogress.start();
-    // const run = async () => {
-    //   setData(null);
-    //   //   authStateChange(async (user) => {
-    //   //     setData(await getUserData(user));
-    //   //     nprogress.done();
-    //   //   });
-    // };
-    // run();
+    nprogress.start();
+    const run = async () => {
+      setData(null);
+      authStateChange(async (user) => {
+        setData(getUserData(user));
+        nprogress.done();
+      });
+    };
+    run();
   }, [setData]);
 
   if (isLoading || isIdle) {
-    return null;
+    return <FullPageLoading />;
   }
 
   if (isError) {
-    // return <FullPageErrorFallback error={error.message} />;
-    console.log(error);
-    return null;
+    return <FullPageErrorFallback error={error.message} />;
   }
 
   if (isSuccess) {

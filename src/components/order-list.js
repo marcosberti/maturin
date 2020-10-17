@@ -4,6 +4,101 @@ import { css, jsx } from '@emotion/core';
 import { List, Item } from './lib';
 import * as mq from '../styles/media-queries';
 
+const TotalOrden = ({ totalOrden }) => (
+  <Item
+    css={css`
+      & > * {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2rem;
+      }
+    `}
+  >
+    <span
+      css={css`
+        font-size: 1.5em;
+        font-weight: 500;
+        flex-basis: 73%;
+      `}
+    >
+      Total Orden
+    </span>
+    <span
+      css={css`
+        font-size: 1.5em;
+        font-weight: 500;
+        flex-basis: 27%;
+        text-align: end;
+        padding-right: 1rem;
+      `}
+    >
+      ARS {totalOrden}
+    </span>
+  </Item>
+);
+
+const CartItem = ({ item }) => (
+  <Item
+    css={css`
+      & > * {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    `}
+  >
+    <img
+      src={item.imagen}
+      alt={item.titulo}
+      width="80"
+      css={css`
+        display: none;
+
+        ${mq.large} {
+          display: block;
+          object-fit: contain;
+          flex-basis: 10%;
+        }
+      `}
+    />
+    <span
+      css={css`
+        font-size: 1.25em;
+        font-weight: 500;
+        text-align: start;
+        flex-basis: 35%;
+        padding-left: 1rem;
+      `}
+    >
+      {item.titulo}
+    </span>
+    <span
+      css={css`
+        flex-basis: 1%;
+      `}
+    >
+      x{item.cantidad}
+    </span>
+    <span
+      css={css`
+        flex-basis: 27%;
+      `}
+    >
+      ARS {item.precio}
+    </span>
+    <span
+      css={css`
+        flex-basis: 27%;
+        text-align: end;
+        padding-right: 1rem;
+      `}
+    >
+      ARS {item.total}
+    </span>
+  </Item>
+);
+
 const OrderList = ({ items }) => {
   let totalOrden = 0;
 
@@ -22,99 +117,9 @@ const OrderList = ({ items }) => {
         {Object.keys(items).map((id) => {
           const item = items[id];
           totalOrden += item.total;
-          return (
-            <Item
-              key={id}
-              css={css`
-                & > * {
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                }
-              `}
-            >
-              <img
-                src={item.imagen}
-                alt={item.titulo}
-                width="80"
-                css={css`
-                  display: none;
-
-                  ${mq.large} {
-                    display: block;
-                    object-fit: contain;
-                    flex-basis: 10%;
-                  }
-                `}
-              />
-              <span
-                css={css`
-                  font-size: 1.25em;
-                  font-weight: 500;
-                  text-align: start;
-                  flex-basis: 35%;
-                  padding-left: 1rem;
-                `}
-              >
-                {item.titulo}
-              </span>
-              <span
-                css={css`
-                  flex-basis: 1%;
-                `}
-              >
-                x{item.cantidad}
-              </span>
-              <span
-                css={css`
-                  flex-basis: 27%;
-                `}
-              >
-                ARS {item.precio}
-              </span>
-              <span
-                css={css`
-                  flex-basis: 27%;
-                  text-align: end;
-                  padding-right: 1rem;
-                `}
-              >
-                ARS {item.total}
-              </span>
-            </Item>
-          );
+          return <CartItem key={id} item={item} />;
         })}
-        <Item
-          css={css`
-            & > * {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              padding-top: 2rem;
-            }
-          `}
-        >
-          <span
-            css={css`
-              font-size: 1.5em;
-              font-weight: 500;
-              flex-basis: 73%;
-            `}
-          >
-            Total Orden
-          </span>
-          <span
-            css={css`
-              font-size: 1.5em;
-              font-weight: 500;
-              flex-basis: 27%;
-              text-align: end;
-              padding-right: 1rem;
-            `}
-          >
-            ARS {totalOrden}
-          </span>
-        </Item>
+        <TotalOrden totalOrden={totalOrden} />
       </React.Fragment>
     </List>
   );

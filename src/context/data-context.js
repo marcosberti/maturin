@@ -3,6 +3,7 @@ import { useAsync } from '../hooks';
 import { fetchData, getCollectionData } from '../firebase';
 import { FullPageLoading } from '../components/lib';
 import { getTime } from '../helpers/';
+import { useAuth } from './auth-context';
 
 // const libro = {
 //   id: 'N1ZdXwCMKoVe7Z16n9jW',
@@ -47,12 +48,7 @@ import { getTime } from '../helpers/';
 const DataContext = React.createContext();
 DataContext.displayName = 'DataContext';
 
-const getFilteredBooks = async (options = {}) => {
-  const libros = await getCollectionData({ url: 'books', ...options });
-  return { libros };
-};
-
-const getInitialData = async (options = {}) => {
+const getBooksData = async (options = {}) => {
   const { libros, categorias } = await fetchData([
     { name: 'libros', url: 'books', ...options },
     { name: 'categorias', url: 'categories' },
@@ -62,6 +58,40 @@ const getInitialData = async (options = {}) => {
     libros: libros.sort((a, b) => (getTime(a) > getTime(b) ? -1 : 1)),
     categorias,
   };
+};
+
+const getOrdersData = async (user) => {
+  const data = await getCollectionData({
+    url: 'orders',
+    filter: ['mail', '==', user.email],
+  });
+
+  return { ordenes: data };
+};
+
+const reducer = (s, a) => {
+  if (a.status === 'resolved') {
+    return {
+      ...s,
+      ...a,
+      data: {
+        ...s.data,
+        ...a.data,
+        libros: a.data.libros
+          ? a.data.libros.reduce((libros, libro) => {
+              const existe = Boolean(libros.find(({ id }) => id === libro.id));
+              if (!existe) {
+                return [...libros, libro];
+              }
+              return libros;
+            }, s.data.libros)
+          : s.data.libros,
+        fetchedCat: [...s.data.fetchedCat, ...a.data.fetchedCat],
+      },
+    };
+  }
+
+  return { ...s, ...a };
 };
 
 const DataProvider = (props) => {
@@ -74,22 +104,29 @@ const DataProvider = (props) => {
     isError,
     isSuccess,
     run,
-  } = useAsync({ data: { libros: [], categorias: [], fetchedCat: [] } });
+  } = useAsync(
+    { data: { libros: [], categorias: [], fetchedCat: [], ordenes: null } },
+    reducer
+  );
+  const { user } = useAuth();
 
   const safeGetData = React.useCallback(
     async (categoryId) => {
       const filter = ['categories', 'array-contains', categoryId];
-      run(getInitialData({ filter }), categoryId);
+      run(getBooksData({ filter }), categoryId);
     },
     [run]
   );
 
   React.useEffect(() => {
-    // setTimeout(() => {
-    // run(getDataDummy());
-    run(getInitialData({ limit: 6 }));
-    // }, 3000);
+    run(getBooksData({ limit: 6 }));
   }, [run]);
+
+  React.useEffect(() => {
+    if (user && !data.ordenes) {
+      run(getOrdersData(user));
+    }
+  }, [data.ordenes, run, user]);
 
   const value = React.useMemo(() => ({ data, getData: safeGetData }), [
     data,

@@ -21,33 +21,15 @@ function useSafeDispatch(dispatch) {
 //   run(fetchPokemon(pokemonName))
 // }, [pokemonName, run])
 const defaultInitialState = { status: 'idle', data: null, error: null };
-function useAsync(initialState) {
+function useAsync(initialState, reducer = (s, a) => ({ ...s, ...a })) {
   const initialStateRef = React.useRef({
     ...defaultInitialState,
     ...initialState,
   });
-  const [{ status, data, error }, setState] = React.useReducer((s, a) => {
-    if (a.status === 'resolved') {
-      return {
-        ...s,
-        ...a,
-        data: {
-          ...s.data,
-          ...a.data,
-          libros: a.data.libros.reduce((libros, libro) => {
-            const existe = Boolean(libros.find(({ id }) => id === libro.id));
-            if (!existe) {
-              return [...libros, libro];
-            }
-            return libros;
-          }, s.data.libros),
-          fetchedCat: [...s.data.fetchedCat, ...a.data.fetchedCat],
-        },
-      };
-    }
-
-    return { ...s, ...a };
-  }, initialStateRef.current);
+  const [{ status, data, error }, setState] = React.useReducer(
+    reducer,
+    initialStateRef.current
+  );
 
   const safeSetState = useSafeDispatch(setState);
 
