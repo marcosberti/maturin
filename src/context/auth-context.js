@@ -10,6 +10,7 @@ import {
 import { useAsync } from '../hooks/useAsync';
 import { FullPageLoading, FullPageErrorFallback } from '../components/lib';
 import { toast } from 'react-toastify';
+import { useData } from './data-context';
 
 const AuthContext = React.createContext();
 AuthContext.displayName = 'AuthContext';

@@ -72,7 +72,7 @@ const BookDetail = () => {
     data: { libros },
   } = useData();
   const { addToCart } = useCart();
-  const [cantidad, setCantidad] = React.useState('1');
+  const [cantidad, setCantidad] = React.useState(1);
 
   const libro = libros.find(({ id: _id }) => _id === id);
 

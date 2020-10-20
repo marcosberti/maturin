@@ -249,7 +249,6 @@ const Content = styled.section`
   ${(props) =>
     props.home
       ? css`
-          ${'' /* padding: 0; */}
           text-align: center;
 
           & > h2 {
@@ -259,7 +258,7 @@ const Content = styled.section`
           }
 
           & > h3 {
-            margin: 5rem 0 2.5rem;
+            margin: 5rem 0 2.5rem 2rem;
             text-align: start;
             text-transform: uppercase;
             font-size: 1.25rem;

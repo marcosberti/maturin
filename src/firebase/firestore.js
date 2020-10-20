@@ -45,9 +45,7 @@ const getDoc = async (url, id) => {
 };
 
 const addOrden = async (orden) => {
-  const { id } = await firestore
-    .collection('orders')
-    .add({ ...orden, fecha: new Date() });
+  const { id } = await firestore.collection('orders').add(orden);
   return id;
 };
 

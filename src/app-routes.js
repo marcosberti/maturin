@@ -9,7 +9,7 @@ const Order = React.lazy(() => import('./screens/order'));
 const Login = React.lazy(() => import('./screens/login'));
 const BookDetail = React.lazy(() => import('./screens/book-detail'));
 
-let AppRoutes = () => {
+const AppRoutes = () => {
   return (
     <React.Suspense fallback={null}>
       <Switch>
@@ -43,7 +43,5 @@ let AppRoutes = () => {
     </React.Suspense>
   );
 };
-
-AppRoutes = React.memo(AppRoutes);
 
 export default AppRoutes;

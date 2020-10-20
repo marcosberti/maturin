@@ -1,16 +1,18 @@
 /**@jsx jsx */
 import React from 'react';
 import { css, jsx } from '@emotion/core';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Redirect, useParams } from 'react-router-dom';
 import { getDoc } from '../firebase/';
 import OrderList from '../components/order-list';
 import { Content, FullPageLoading } from '../components/lib';
+import { useAuth } from '../context/auth-context';
 
 const Order = () => {
   const [order, setOrder] = React.useState(null);
   const [error, setError] = React.useState(null);
   const { orderId } = useParams();
   const loadingRef = React.useRef(true);
+  const { user } = useAuth();
 
   React.useEffect(() => {
     const run = async () => {
@@ -23,8 +25,14 @@ const Order = () => {
       setOrder(data);
     };
 
-    run();
-  }, [orderId]);
+    if (user) {
+      run();
+    }
+  }, [orderId, user]);
+
+  if (!user) {
+    return <Redirect to="/" />;
+  }
 
   return loadingRef.current ? (
     <FullPageLoading />

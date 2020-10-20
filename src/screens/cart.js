@@ -53,7 +53,10 @@ const ItemsCarrito = ({ conItems, items }) =>
 
 const FormularioCompra = ({ disabled, items }) => {
   const { user } = useAuth();
+  const { data, setData } = useData();
+  const { refreshCart } = useCart();
   const history = useHistory();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { nombre, apellido, telefono, mail, mailConf } = e.target.elements;
@@ -68,12 +71,18 @@ const FormularioCompra = ({ disabled, items }) => {
       apellido: apellido.value,
       telefono: telefono.value,
       mail: mail.value,
+      fecha: new Date(),
       items,
     };
 
     try {
       nProgress.start();
       const id = await addOrden(orden);
+      orden.id = id;
+      const ordenes = data.ordenes || [];
+      setData({ ...data, ordenes: [...ordenes, orden] });
+      refreshCart();
+
       history.push(`/orders/${id}`);
     } catch ({ message }) {
       toast.error(message);

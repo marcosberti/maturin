@@ -15,9 +15,11 @@ const CartProvider = (props) => {
     setCartItems((prevItems) => prevItems.filter((item) => item !== libro.id));
   }, []);
 
+  const refreshCart = React.useCallback(() => setCartItems([]), []);
+
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, deleteFromCart }}
+      value={{ cartItems, addToCart, deleteFromCart, refreshCart }}
       {...props}
     />
   );

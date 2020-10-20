@@ -5,6 +5,7 @@ import { useAuth } from '../context/auth-context';
 import { Content, Label, Input, Button } from '../components/lib';
 import { toast } from 'react-toastify';
 import { Redirect } from 'react-router-dom';
+import * as mq from '../styles/media-queries';
 
 const FormButton = ({ setCurrentForm, text, form }) => (
   <button
@@ -158,11 +159,14 @@ const Login = () => {
     <Content>
       <div
         css={css`
-          width: 500px;
           box-shadow: 0px 0px 5px 2px #ccc;
           margin: 2rem auto;
           border-radius: 5px;
           padding: 2rem;
+
+          ${mq.large} {
+            width: 500px;
+          }
         `}
       >
         {currentForm === forms.login ? (
